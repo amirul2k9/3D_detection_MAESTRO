@@ -97,6 +97,23 @@ def main():
             load_data_to_gpu(data_dict)
             pred_dicts, _ = model.forward(data_dict)
 
+            # Save the pointcloud and bbox to txt files to be transfered to my local pc to be visulaised
+            pointss = data_dict['points'][:, 1:].detach().cpu().numpy()
+            ref_boxess = pred_dicts[0]['pred_boxes'].detach().cpu().numpy()
+            # for i, line in enumerate(ref_boxess):
+            #     line = np.array(line)[[0, 2, 1, 3, 4, 5, 6]]
+            #     line[2] = - line[2]
+            #     line[1] = 0.0
+            #     ref_boxess[i] = line
+            
+            np.savetxt('points.txt', pointss)
+            np.savetxt('ref_boxes.txt', ref_boxess)
+            print('Saved points and ref_boxes to txt files')
+            # V.draw_scenes(
+            #     points=data_dict['points'][:, 1:], ref_boxes=pred_dicts[0]['pred_boxes'],
+            #     ref_scores=pred_dicts[0]['pred_scores'], ref_labels=pred_dicts[0]['pred_labels']
+            # )
+            
             V.draw_scenes(
                 points=data_dict['points'][:, 1:], ref_boxes=pred_dicts[0]['pred_boxes'],
                 ref_scores=pred_dicts[0]['pred_scores'], ref_labels=pred_dicts[0]['pred_labels']

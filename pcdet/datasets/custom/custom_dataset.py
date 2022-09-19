@@ -63,9 +63,9 @@ class CustomDataset(DatasetTemplate):
         return np.array(gt_boxes, dtype=np.float32), np.array(gt_names)
 
     def get_lidar(self, idx):
-        lidar_file = self.root_path / 'points' / ('%s.npy' % idx)
+        lidar_file = self.root_path / 'points' / ('%s.bin' % idx)
         assert lidar_file.exists()
-        point_features = np.load(lidar_file)
+        point_features = np.fromfile(str(lidar_file), dtype=np.float32).reshape(-1, 4)
         return point_features
 
     def set_split(self, split):
@@ -277,7 +277,7 @@ if __name__ == '__main__':
         ROOT_DIR = (Path(__file__).resolve().parent / '../../../').resolve()
         create_custom_infos(
             dataset_cfg=dataset_cfg,
-            class_names=['Vehicle', 'Pedestrian', 'Cyclist'],
+            class_names=['human'],
             data_path=ROOT_DIR / 'data' / 'custom',
             save_path=ROOT_DIR / 'data' / 'custom',
         )
