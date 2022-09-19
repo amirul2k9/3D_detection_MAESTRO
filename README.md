@@ -1,8 +1,10 @@
 <img src="docs/open_mmlab.png" align="right" width="30%">
 
-# OpenPCDet
+# 3D Human Detection for MAESTRO Project
 
-`OpenPCDet` is a clear, simple, self-contained open source project for LiDAR-based 3D object detection. 
+This repo is forked from [`OpenPCDet`](). The origional code was written to work in Autonomous Driving applications. This code is customised to work inside the Operating room, where humans pointclouds are more dense and larger than those in the AV application. This repo explains the customisation procedure and how to train and test the model on a customised dataset. 
+
+The code is customised to work with  is a clear, simple, self-contained open source project for LiDAR-based 3D object detection. 
 
 It is also the official code release of [`[PointRCNN]`](https://arxiv.org/abs/1812.04244), [`[Part-A2-Net]`](https://arxiv.org/abs/1907.03670), [`[PV-RCNN]`](https://arxiv.org/abs/1912.13192), [`[Voxel R-CNN]`](https://arxiv.org/abs/2012.15712), [`[PV-RCNN++]`](https://arxiv.org/abs/2102.00463) and [`[MPPNet]`](https://arxiv.org/abs/2205.05979). 
 
