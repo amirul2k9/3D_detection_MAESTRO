@@ -1,7 +1,7 @@
 CLASS_NAMES: ['human']
 
 DATA_CONFIG:
-    _BASE_CONFIG_: /mnt/mars-beta/izzeddin/OpenPCDet/tools/cfgs/dataset_configs/custom_dataset.yaml
+    _BASE_CONFIG_: /mnt/mars-beta/izzeddin/3D_detection_MAESTRO/tools/cfgs/dataset_configs/custom_dataset.yaml
 
 MODEL:
     NAME: PVRCNN
