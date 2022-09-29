@@ -6,7 +6,8 @@ This repo is forked from [`OpenPCDet`](https://github.com/open-mmlab/OpenPCDet).
 
 ## Overview
 - [Installation](#installation)
-- [Data](#Data)
+- [Data](#data)
+- [Code Customisation](#customisation)
 - [Quick Demo](docs/DEMO.md)
 - [Getting Started](docs/GETTING_STARTED.md)
 - [Citation](#citation)
@@ -58,6 +59,58 @@ python setup.py develop
 ```
 </details>
 
+
+
+## Data
+### Data Collecting
+The pointclouds were generated using 8 kinect cameras ditribuated inside an opertaing room. The pointclouds coming from the 8 cameras were combined then downsampled. 
+
+### Data Format
+The initial format of the data is `.ply` but it was converted to `.pcd` in order to uploaded to [Supervisely](https://supervise.ly/) (the online pointcloud annotation platform). Supervisely outputs the annotation format as `.json` format.
+
+### Data Conversion
+Both the data and the annotaions were converted using [this code](https://github.com/IzzeddinTeeti/Convert-supervisely-to-KITTI) to other formats in order to work with the detection code. The data were conveted from `.pcd` to `.bin` and the annotation were converted from `.json` to `.txt`. 
+
+
+
+## Customisation 
+To customise the code, follow these steps:
+1. Move the custom dataset into the right directory, as follows:
+
+```
+OpenPCDet
+├── data
+│   ├── custom
+│   │   │── ImageSets
+│   │   │   │── train.txt
+│   │   │   │── val.txt
+│   │   │── points
+│   │   │   │── 000000.npy
+│   │   │   │── 999999.npy
+│   │   │── labels
+│   │   │   │── 000000.txt
+│   │   │   │── 999999.txt
+├── pcdet
+├── tools
+```
+Dataset splits need to be pre-defined and placed in `ImageSets`
+
+2. In `custom_dataset.yaml` change the following lines:
+- `POINT_CLOUD_RANGE: [-3.2, -1.6, -3.2, 3.2, 1.6, 3.2]`, the pointcloud range is in the format [X1, Y1, Z1, X2, Y2, Z2].
+- `MAP_CLASS_TO_KITTI: {'human': 'Pedestrian'}`
+- `VOXEL_SIZE: [0.05, 0.1, 0.05]`, IMPORTANT: range divided by voxelsize must be multiple of 16.
+
+3. In 'custom models' folder, change the following lines in `pv_rcnn.yaml` file
+- `CLASS_NAMES: ['human']`
+- `_BASE_CONFIG_: ../dataset_configs/custom_dataset.yaml`, the directory for `custom_dataset.yaml`
+- `NUM_BEV_FEATURES: 896`, this is one of the trickest changes. It is related to the tensor size and depends on the type of the custom data, if the code throws an error related to the tensor size, copy the number in the error message and paste it here.
+- `'anchor_sizes': [[0.8, 2, 0.8]],` for 'human' class.
+
+## Training
+To train the model (PV-RCNN in our case), follow these steps:
+1. 
+
+## Testing
 
 
 ## Citation 
