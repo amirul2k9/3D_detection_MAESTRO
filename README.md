@@ -2,14 +2,14 @@
 
 # 3D Human Detection for MAESTRO Project
 
-This repo is forked from [`OpenPCDet`](https://github.com/open-mmlab/OpenPCDet). The origional code was written to work in Autonomous Driving applications. This code is customised to detect humans in 3D Lidar pointclouds inside the Operating room, where humans pointclouds are more dense and larger than those in the AV application. This repo explains the customisation procedure and how to train and test the model on a customised dataset. 
+This repo is forked from [`OpenPCDet`](https://github.com/open-mmlab/OpenPCDet). The origional code was written to work in Autonomous Driving applications. This code is used in [Situation Awareness for Automated Surgical Check-listing in AI-Assisted Operating Room](https://arxiv.org/abs/2209.05056) and it is customised to detect humans in 3D Lidar pointclouds inside the Operating room, where humans pointclouds are more dense and larger than those in the AV application. This repo explains the customisation procedure and how to train and test the model on a customised dataset. 
 
 ## Overview
 - [Installation](#installation)
 - [Data](#data)
 - [Code Customisation](#customisation)
-- [Quick Demo](docs/DEMO.md)
-- [Getting Started](docs/GETTING_STARTED.md)
+- [Training](#training)
+- [Testing](#testing)
 - [Citation](#citation)
 
 
@@ -78,7 +78,7 @@ To customise the code, follow these steps:
 1. Move the custom dataset into the right directory, as follows:
 
 ```
-OpenPCDet
+3D_detection_MAESTRO
 ├── data
 │   ├── custom
 │   │   │── ImageSets
@@ -95,27 +95,55 @@ OpenPCDet
 ```
 Dataset splits need to be pre-defined and placed in `ImageSets`
 
-2. In `custom_dataset.yaml` change the following lines:
-- `POINT_CLOUD_RANGE: [-3.2, -1.6, -3.2, 3.2, 1.6, 3.2]`, the pointcloud range is in the format [X1, Y1, Z1, X2, Y2, Z2].
-- `MAP_CLASS_TO_KITTI: {'human': 'Pedestrian'}`
-- `VOXEL_SIZE: [0.05, 0.1, 0.05]`, IMPORTANT: range divided by voxelsize must be multiple of 16.
+2. In [`custom_dataset.yaml`](https://github.com/IzzeddinTeeti/3D_detection_MAESTRO/blob/master/tools/cfgs/dataset_configs/custom_dataset.yaml) change the following lines:
+- [`POINT_CLOUD_RANGE: [-3.2, -1.6, -3.2, 3.2, 1.6, 3.2]`](https://github.com/IzzeddinTeeti/3D_detection_MAESTRO/blob/master/tools/cfgs/dataset_configs/custom_dataset.yaml#L4), the pointcloud range is in the format [X1, Y1, Z1, X2, Y2, Z2].
+- [`MAP_CLASS_TO_KITTI: {'human': 'Pedestrian'}`](https://github.com/IzzeddinTeeti/3D_detection_MAESTRO/blob/master/tools/cfgs/dataset_configs/custom_dataset.yaml#L6-L8)
+- [`VOXEL_SIZE: [0.05, 0.1, 0.05]`](https://github.com/IzzeddinTeeti/3D_detection_MAESTRO/blob/master/tools/cfgs/dataset_configs/custom_dataset.yaml#L63), IMPORTANT: range divided by voxelsize must be multiple of 16.
 
-3. In 'custom models' folder, change the following lines in `pv_rcnn.yaml` file
-- `CLASS_NAMES: ['human']`
-- `_BASE_CONFIG_: ../dataset_configs/custom_dataset.yaml`, the directory for `custom_dataset.yaml`
-- `NUM_BEV_FEATURES: 896`, this is one of the trickest changes. It is related to the tensor size and depends on the type of the custom data, if the code throws an error related to the tensor size, copy the number in the error message and paste it here.
-- `'anchor_sizes': [[0.8, 2, 0.8]],` for 'human' class.
+3. In 'custom models' folder, change the following lines in [`pv_rcnn.yaml`](https://github.com/IzzeddinTeeti/3D_detection_MAESTRO/blob/master/tools/cfgs/custom_models/pv_rcnn.yaml) file
+- [`CLASS_NAMES: ['human']`](https://github.com/IzzeddinTeeti/3D_detection_MAESTRO/blob/master/tools/cfgs/custom_models/pv_rcnn.yaml#L1)
+- [`_BASE_CONFIG_: ../dataset_configs/custom_dataset.yaml`](https://github.com/IzzeddinTeeti/3D_detection_MAESTRO/blob/master/tools/cfgs/custom_models/pv_rcnn.yaml#L4), the directory for `custom_dataset.yaml`
+- [`NUM_BEV_FEATURES: 896`](https://github.com/IzzeddinTeeti/3D_detection_MAESTRO/blob/master/tools/cfgs/custom_models/pv_rcnn.yaml#L17), this is one of the trickest changes. It is related to the tensor size and depends on the type of the custom data, if the code throws an error related to the tensor size, copy the number in the error message and paste it here.
+- [`'anchor_sizes': [[0.8, 2, 0.8]],`](https://github.com/IzzeddinTeeti/3D_detection_MAESTRO/blob/master/tools/cfgs/custom_models/pv_rcnn.yaml#L40) for 'human' class.
+  
+4. In [`custom_dataset.py`](https://github.com/IzzeddinTeeti/3D_detection_MAESTRO/blob/master/pcdet/datasets/custom/custom_dataset.py) change one line to 
+  ```
+  create_custom_infos(
+            dataset_cfg=dataset_cfg,
+            class_names=['human'],
+            data_path=ROOT_DIR / 'data' / 'custom',
+            save_path=ROOT_DIR / 'data' / 'custom',
+        )
+  ```
 
 ## Training
 To train the model (PV-RCNN in our case), follow these steps:
-1. 
+1. Generate the data info by running the following code while being in the main directory
+  ```
+  python -m pcdet.datasets.custom.custom_dataset create_custom_infos tools/cfgs/dataset_configs/custom_dataset.yaml
+  ```
+2. Change the directory to 'tools' then run `train.py` using the following scipt
+  ```
+  CUDA_VISIBLE_DEVICES=1 python train.py --cfg_file cfgs/custom_models/pv_rcnn.yaml --batch_size 2 --workers 1 --epochs 300
+  ```
+  
 
 ## Testing
 
 
 ## Citation 
 If you find this project useful in your research, please consider cite:
-
+```
+  @misc{onyeogulu2022situation,
+    title={Situation Awareness for Automated Surgical Check-listing in AI-Assisted Operating Room},
+    author={Tochukwu Onyeogulu and Salman Khan and Izzeddin Teeti and Amirul Islam and Kaizhe Jin and Adrian Rubio-Solis and Ravi Naik and George Mylonas and Fabio Cuzzolin},
+    year={2022},
+    eprint={2209.05056},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV}
+}
+```
+To cite the origional OpenPCDet:
 
 ```
 @misc{openpcdet2020,
@@ -126,7 +154,6 @@ If you find this project useful in your research, please consider cite:
 }
 ```
 
-## Contribution
-Welcome to be a member of the OpenPCDet development team by contributing to this repo, and feel free to contact us for any potential contributions. 
+
 
 
