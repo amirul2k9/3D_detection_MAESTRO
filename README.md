@@ -24,7 +24,7 @@ All the codes are tested in the following environment:
 * PyTorch 1.9 
 * CUDA 10.2
 * [`spconv v1.0 (commit 8da6f96)`](https://github.com/traveller59/spconv/tree/8da6f967fb9a054d8870c3515b1b44eca2103634) or [`spconv v1.2`](https://github.com/traveller59/spconv) or [`spconv v2.x`](https://github.com/traveller59/spconv)
-    Foldable Content[enter image description here][1]
+    
 </details>
 
 
